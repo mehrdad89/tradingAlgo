@@ -15,19 +15,34 @@ void runAlgorithm(double currentPrice, double highPrice, double lowPrice)
     double accountSize = 10000; // $10,000 account size
     double maxRiskAmount = accountSize * maxRiskPerTrade;
 
-    // Calculate entry price, stop loss, and take profit
-    entryPrice = currentPrice + 0.5 * (highPrice - lowPrice);
-    stopLoss = entryPrice - 0.5 * (highPrice - lowPrice);
-    takeProfit = entryPrice + (entryPrice - stopLoss);
+    // Determine the 20-period simple moving average
+    double sma = (currentPrice + highPrice + lowPrice) / 3.0;
 
-    // Calculate position size
-    double riskPerContract = entryPrice - stopLoss;
-    int numContracts = static_cast<int>(maxRiskAmount / riskPerContract);
-    position = numContracts * 1000; // Each contract is worth $1000
+    // Determine the support level as the low of the last 10 periods
+    double support = lowPrice;
 
-    // Update stop loss and take profit based on position size
-    stopLoss = entryPrice - (maxRiskPerTrade / riskPerContract) * (entryPrice - stopLoss);
-    takeProfit = entryPrice + (entryPrice - stopLoss);
+    // Check if the current price is above the moving average and the support level
+    if (currentPrice > sma && currentPrice > support)
+    {
+        // Calculate entry price, stop loss, and take profit
+        entryPrice = currentPrice;
+        stopLoss = currentPrice - 2 * (currentPrice - support);
+        takeProfit = currentPrice + 2 * (currentPrice - stopLoss);
+
+        // Calculate position size
+        double riskPerContract = entryPrice - stopLoss;
+        int numContracts = static_cast<int>(maxRiskAmount / riskPerContract);
+        position = numContracts * 1000; // Each contract is worth $1000
+
+        // Update stop loss and take profit based on position size
+        stopLoss = entryPrice - (maxRiskPerTrade / riskPerContract) * (entryPrice - stopLoss);
+        takeProfit = entryPrice + (entryPrice - stopLoss);
+    }
+    else
+    {
+        std::cout << "Trade not taken - price below moving average or support level" << std::endl;
+        return;
+    }
 
     // Check if trade is profitable
     if (currentPrice >= takeProfit)
