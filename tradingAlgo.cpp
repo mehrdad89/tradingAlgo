@@ -9,8 +9,9 @@ int main()
     double stopLoss = 0;
     double takeProfit = 0;
     double riskPerTrade = 0.01; // 1% risk per trade
+    double maxRiskPerTrade = 100; // $100 maximum risk per trade
     double accountSize = 10000; // $10,000 account size
-    double riskAmount = accountSize * riskPerTrade;
+    double maxRiskAmount = accountSize * maxRiskPerTrade;
 
     // Get market data
     double currentPrice = 50;
@@ -24,8 +25,12 @@ int main()
 
     // Calculate position size
     double riskPerContract = entryPrice - stopLoss;
-    int numContracts = static_cast<int>(riskAmount / riskPerContract);
+    int numContracts = static_cast<int>(maxRiskAmount / riskPerContract);
     position = numContracts * 1000; // Each contract is worth $1000
+
+    // Update stop loss and take profit based on position size
+    stopLoss = entryPrice - (maxRiskPerTrade / riskPerContract) * (entryPrice - stopLoss);
+    takeProfit = entryPrice + (entryPrice - stopLoss);
 
     // Check if trade is profitable
     if (currentPrice >= takeProfit)
