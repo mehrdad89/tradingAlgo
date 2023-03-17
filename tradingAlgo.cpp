@@ -110,7 +110,7 @@ int main()
         generateRandomRiskPerTrade(riskRange, randomRiskPerTrade);
 
         // Run the algorithm for each simulation
-        threads.emplace_back(runAlgorithm, randomCurrentPrice, randomHighPrice, randomLowPrice, randomRiskPerTrade);
+        threads.emplace_back(runAlgorithm, randomCurrentPrice, randomHighPrice, randomLowPrice, 1, randomRiskPerTrade);
     }
 
     // Join all threads
