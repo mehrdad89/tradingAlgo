@@ -4,65 +4,12 @@
 #include <random>
 #include <cmath>
 
-// Define a function that runs the algorithm with one set of market data and returns the profit/loss
-double runAlgorithmMonteCarlo(double currentPrice, double highPrice, double lowPrice, double positionSize, double riskAmount)
-{
-    // Set initial values
-    double position = positionSize;
-    double entryPrice = 0;
-    double exitPrice = 0;
-    double stopLoss = 0;
-    double takeProfit = 0;
-    double maxRiskAmount = riskAmount;
-
-    // Determine the 20-period simple moving average
-    double sma = (currentPrice + highPrice + lowPrice) / 3.0;
-
-    // Determine the support level as the low of the last 10 periods
-    double support = lowPrice;
-
-    // Check if the current price is above the moving average and the support level
-    if (currentPrice > sma && currentPrice > support)
-    {
-        // Calculate entry price, stop loss, and take profit
-        entryPrice = currentPrice;
-        stopLoss = currentPrice - 2 * (currentPrice - support);
-        takeProfit = currentPrice + 2 * (currentPrice - stopLoss);
-
-        // Update stop loss and take profit based on position size
-        stopLoss = entryPrice - (maxRiskAmount / position) * (entryPrice - stopLoss);
-        takeProfit = entryPrice + (entryPrice - stopLoss);
-    }
-    else
-    {
-        return 0; // Trade not taken - price below moving average or support level
-    }
-
-    // Check if trade is profitable
-    if (currentPrice >= takeProfit)
-    {
-        exitPrice = takeProfit;
-    }
-    else if (currentPrice <= stopLoss)
-    {
-        exitPrice = stopLoss;
-    }
-    else
-    {
-        return 0; // Trade still open
-    }
-
-    // Calculate profit/loss
-    double profitLoss = (exitPrice - entryPrice) * position;
-
-    return profitLoss;
-}
-
-double runAlgorithmKellyCriterion(double currentPrice, double highPrice, double lowPrice, double riskAmount, double accountBalance)
+double runAlgorithm(double currentPrice, double highPrice, double lowPrice, double riskAmount, double accountBalance)
 {
     // Set initial values
     double positionSize = 0;
     double entryPrice = 0;
+    double exitPrice = 0;
     double stopLoss = 0;
     double takeProfit = 0;
     double maxRiskAmount = 0.02 * accountBalance; // Maximum 2% risk per trade
@@ -97,15 +44,17 @@ double runAlgorithmKellyCriterion(double currentPrice, double highPrice, double 
         // Check if trade is profitable
         if (currentPrice >= takeProfit)
         {
+            exitPrice = takeProfit;
             profitLoss = positionSize * (takeProfit - entryPrice);
         }
         else if (currentPrice <= stopLoss)
         {
+            exitPrice = stopLoss;
             profitLoss = positionSize * (stopLoss - entryPrice);
         }
         else
         {
-            profitLoss = 0; // Trade still open
+            return 0; // Trade still open
         }
     }
     else
@@ -170,18 +119,8 @@ int main()
         double randomRiskPerTrade;
         generateRandomRiskPerTrade(riskRange, randomRiskPerTrade);
 
-        // Run the algorithm for each simulation
-        threads.emplace_back(runAlgorithmMonteCarlo, randomCurrentPrice, randomHighPrice, randomLowPrice, 1, randomRiskPerTrade);
-    }
-
-    for (int i = 0; i < 4; i++)
-    {
-        // Generate random market data for each simulation
-        double randomCurrentPrice, randomHighPrice, randomLowPrice;
-        generateRandomMarketData(currentPrice + i, highPrice + i, lowPrice + i, priceRange, randomCurrentPrice, randomHighPrice, randomLowPrice);
-
-        // Run the algorithm for each simulation
-        threads.emplace_back(runAlgorithmKellyCriterion, randomCurrentPrice, randomHighPrice, randomLowPrice, randomRiskPerTrade, accountBalance);
+        // Run the KellyCriterion and MonteCarlo algorithm for in a combined simulation
+        threads.emplace_back(runAlgorithm, randomCurrentPrice, randomHighPrice, randomLowPrice, randomRiskPerTrade, accountBalance);
     }
 
     // Join all threads
