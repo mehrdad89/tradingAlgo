@@ -104,32 +104,31 @@ int main()
 
     // Define the range of values for the risk per trade
     const double riskRange = 0.05; // 5% maximum risk per trade
+    // Create vector to store results
+    std::vector<double> results;
 
-    // Create vector of threads
-    std::vector<std::thread> threads;
-
-    // Create 4 threads and run the algorithm with different market data on each thread
-    for (int i = 0; i < 4; i++)
+    // Run the simulations and store the results
+    for (int i = 0; i < numSimulations; i++)
     {
-        // Generate random market data for each simulation
+        // Generate random market data and risk per trade for each simulation
         double randomCurrentPrice, randomHighPrice, randomLowPrice;
         generateRandomMarketData(currentPrice + i, highPrice + i, lowPrice + i, priceRange, randomCurrentPrice, randomHighPrice, randomLowPrice);
-
-        // Generate random risk per trade for each simulation
         double randomRiskPerTrade;
         generateRandomRiskPerTrade(riskRange, randomRiskPerTrade);
 
-        // Run the KellyCriterion and MonteCarlo algorithm for in a combined simulation
-        threads.emplace_back(runAlgorithm, randomCurrentPrice, randomHighPrice, randomLowPrice, randomRiskPerTrade, accountBalance);
+        // Run the algorithm and store the result
+        double result = runAlgorithm(randomCurrentPrice, randomHighPrice, randomLowPrice, randomRiskPerTrade, accountBalance);
+        results.push_back(result);
     }
 
-    // Join all threads
-    for (auto& thread : threads)
+    // Print the results
+    for (int i = 0; i < numSimulations; i++)
     {
-        thread.join();
+        std::cout << "Simulation " << i << ": " << results[i] << std::endl;
     }
 
     std::cout << "All simulations completed.\n";
 
     return 0;
 }
+
