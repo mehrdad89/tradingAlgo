@@ -72,10 +72,11 @@ void generateRandomMarketData(double currentPrice, double highPrice, double lowP
     std::mt19937 gen(rd());
     std::uniform_real_distribution<> dis(-priceRange, priceRange);
 
-    randomCurrentPrice = currentPrice + dis(gen);
-    randomHighPrice = highPrice + dis(gen);
-    randomLowPrice = lowPrice + dis(gen);
+    randomCurrentPrice = std::max(lowPrice, std::min(highPrice, currentPrice + dis(gen)));
+    randomHighPrice = std::max(randomCurrentPrice, std::max(highPrice, currentPrice + dis(gen)));
+    randomLowPrice = std::min(randomCurrentPrice, std::min(lowPrice, currentPrice + dis(gen)));
 }
+
 
 // Generate random risk per trade
 void generateRandomRiskPerTrade(double riskRange, double& randomRiskPerTrade)
