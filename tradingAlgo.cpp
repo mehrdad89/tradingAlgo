@@ -4,7 +4,7 @@
 #include <random>
 #include <cmath>
 
-double runAlgorithm(double currentPrice, double highPrice, double lowPrice, double riskAmount, double accountBalance)
+double runAlgorithm(const double& currentPrice, const double& highPrice, const double& lowPrice, const double& riskAmount, const double& accountBalance)
 {
     // Set initial values
     double positionSize = 0;
@@ -59,14 +59,14 @@ double runAlgorithm(double currentPrice, double highPrice, double lowPrice, doub
     }
     else
     {
-        return 0; // Trade not taken - price below moving average or support level
+        return 0; // Trade not taken    - price below moving average or support level
     }
 
     return profitLoss;
 }
 
 // Generate random market data
-void generateRandomMarketData(double currentPrice, double highPrice, double lowPrice, double priceRange, double& randomCurrentPrice, double& randomHighPrice, double& randomLowPrice)
+void generateRandomMarketData(const double& currentPrice, const double& highPrice, const double& lowPrice, const double& priceRange, double& randomCurrentPrice, double& randomHighPrice, double& randomLowPrice)
 {
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -79,7 +79,7 @@ void generateRandomMarketData(double currentPrice, double highPrice, double lowP
 
 
 // Generate random risk per trade
-void generateRandomRiskPerTrade(double riskRange, double& randomRiskPerTrade)
+void generateRandomRiskPerTrade(const double& riskRange, double& randomRiskPerTrade)
 {
     std::random_device rd;
     std::mt19937 gen(rd());
