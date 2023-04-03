@@ -4,7 +4,13 @@
 #include <random>
 #include <cmath>
 
-double runAlgorithm(const double& currentPrice, const double& highPrice, const double& lowPrice, const double& riskAmount, const double& accountBalance)
+struct MarketData {
+    double currentPrice;
+    double highPrice;
+    double lowPrice;
+};
+
+double runAlgorithm(const double& randomCurrentPrice, const double& randomHighPrice, const double& randomLowPrice, const double& riskAmount, const double& accountBalance)
 {
     // Set initial values
     double positionSize = 0;
@@ -16,38 +22,38 @@ double runAlgorithm(const double& currentPrice, const double& highPrice, const d
     double profitLoss = 0;
 
     // Determine the 20-period simple moving average
-    double sma = (currentPrice + highPrice + lowPrice) / 3.0;
+    double sma = (randomCurrentPrice + randomHighPrice + randomLowPrice) / 3.0;
 
     // Determine the support level as the low of the last 10 periods
-    double support = lowPrice;
+    double support = randomLowPrice;
 
     // Check if the current price is above the moving average and the support level
-    if (currentPrice > sma && currentPrice > support)
+    if (randomCurrentPrice > sma && randomCurrentPrice > support)
     {
         // Calculate position size based on Kelly Criterion
-        double winProbability = (takeProfit - currentPrice) / (takeProfit - stopLoss);
+        double winProbability = (takeProfit - randomCurrentPrice) / (takeProfit - stopLoss);
         double lossProbability = 1 - winProbability;
-        double winLossRatio = (takeProfit - currentPrice) / (currentPrice - stopLoss);
+        double winLossRatio = (takeProfit - randomCurrentPrice) / (randomCurrentPrice - stopLoss);
         double expectedWin = winProbability * winLossRatio - lossProbability;
         double edge = expectedWin / winLossRatio;
         positionSize = (maxRiskAmount * edge) / (riskAmount / accountBalance);
 
         // Calculate entry price, stop loss, and take profit
-        entryPrice = currentPrice;
-        stopLoss = currentPrice - 2 * (currentPrice - support);
-        takeProfit = currentPrice + 2 * (takeProfit - currentPrice);
+        entryPrice = randomCurrentPrice;
+        stopLoss = randomCurrentPrice - 2 * (randomCurrentPrice - support);
+        takeProfit = randomCurrentPrice + 2 * (takeProfit - randomCurrentPrice);
 
         // Update stop loss and take profit based on position size
         stopLoss = entryPrice - (riskAmount * entryPrice / positionSize) * (entryPrice - stopLoss) / accountBalance;
         takeProfit = entryPrice + (entryPrice - stopLoss);
 
         // Check if trade is profitable
-        if (currentPrice >= takeProfit)
+        if (randomCurrentPrice >= takeProfit)
         {
             exitPrice = takeProfit;
             profitLoss = positionSize * (takeProfit - entryPrice);
         }
-        else if (currentPrice <= stopLoss)
+        else if (randomCurrentPrice <= stopLoss)
         {
             exitPrice = stopLoss;
             profitLoss = positionSize * (stopLoss - entryPrice);
@@ -91,9 +97,10 @@ void generateRandomRiskPerTrade(const double& riskRange, double& randomRiskPerTr
 int main()
 {
     // Get market data
-    double currentPrice = 50;
-    double highPrice = 55;
-    double lowPrice = 45;
+	MarketData marketData{0.0, 0.0, 0.0};  // Initialize with default values
+	marketData.currentPrice = 50;
+	marketData.highPrice = 55;
+	marketData.lowPrice = 45;
     // starting balance of $10,000
     double accountBalance = 10000.0;
 
@@ -113,7 +120,7 @@ int main()
     {
         // Generate random market data and risk per trade for each simulation
         double randomCurrentPrice, randomHighPrice, randomLowPrice;
-        generateRandomMarketData(currentPrice + i, highPrice + i, lowPrice + i, priceRange, randomCurrentPrice, randomHighPrice, randomLowPrice);
+        generateRandomMarketData(marketData.currentPrice + i, marketData.highPrice + i, marketData.lowPrice + i, priceRange, randomCurrentPrice, randomHighPrice, randomLowPrice);
         double randomRiskPerTrade;
         generateRandomRiskPerTrade(riskRange, randomRiskPerTrade);
 
