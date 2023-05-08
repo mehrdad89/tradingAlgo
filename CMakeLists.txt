@@ -7,3 +7,6 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # ... Define targets, etc. as usual
 
 add_executable(tradingAlgorithm tradingAlgo.cpp)
+
+add_executable(trading_algorithm_test trading_algorithm_test.cpp)
+target_link_libraries(trading_algorithm_test gtest)
