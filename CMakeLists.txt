@@ -8,11 +8,14 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # Add path to gtest headers
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/gtest)
 
-# Define targets, etc. as usual
-add_executable(tradingAlgorithm tradingAlgo.cpp)
+# Define the tradingAlgorithm library
+add_library(tradingAlgorithm tradingAlgo.cpp)
 
-# Link against gtest library
-target_link_libraries(tradingAlgorithm gtest)
+# Add the main executable
+add_executable(main tradingAlgorithm.cpp)
+
+# Link against the tradingAlgorithm library
+target_link_libraries(main tradingAlgorithm)
 
 # Add test executable
 add_executable(trading_algorithm_test trading_algorithm_test.cpp)
@@ -22,4 +25,3 @@ target_link_libraries(trading_algorithm_test gtest tradingAlgorithm)
 
 # Add tests to be run by CTest
 add_test(NAME RunAlgorithmTest COMMAND trading_algorithm_test)
-
