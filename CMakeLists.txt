@@ -12,7 +12,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/gtest)
 add_library(tradingAlgorithm tradingAlgo.cpp)
 
 # Add the main executable
-add_executable(main tradingAlgorithm.cpp)
+add_executable(main tradingAlgo.cpp)
 
 # Link against the tradingAlgorithm library
 target_link_libraries(main tradingAlgorithm)
